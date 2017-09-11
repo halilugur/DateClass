@@ -6,8 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -17,7 +15,8 @@ public class DateInterspace {
 
     private String startDate;
     private String endDate;
-    private int[] days = new int[0];
+    private Integer startDay;
+    private Integer endDay;
 
     /**
      * String Type Constructor<br><br>
@@ -33,24 +32,6 @@ public class DateInterspace {
     public DateInterspace(String startDate, String endDate) {
         this.startDate = startDate;
         this.endDate = endDate;
-    }
-
-    /**
-     * String Type Constructor<br><br>
-     * <code>
-     * Example<br>
-     * ---------------------<br>
-     * new
-     * DateInterspace("DD.MM.YYYY","DD.MM.YYYY",numberDay1,numberDay2,Numb.....)<br>
-     * </code>
-     *
-     * @param startDate Firs Date
-     * @param endDate Last Date
-     * @param days Which days
-     */
-    public DateInterspace(String startDate, String endDate, int... days) {
-        this(startDate, endDate);
-        this.days = days;
     }
 
     public String getStartDate() {
@@ -69,12 +50,20 @@ public class DateInterspace {
         this.endDate = endDate;
     }
 
-    public int[] getDays() {
-        return days;
+    public Integer getStartDay() {
+        return startDay;
     }
 
-    public void setDays(int[] days) {
-        this.days = days;
+    public void setStartDay(Integer startDay) {
+        this.startDay = startDay;
+    }
+
+    public Integer getEndDay() {
+        return endDay;
+    }
+
+    public void setEndDay(Integer endDay) {
+        this.endDay = endDay;
     }
 
     /**
@@ -82,53 +71,42 @@ public class DateInterspace {
      *
      * @return List Weeks
      */
-    public List<Weeks> findDayOfWeeks() {
+    public List<Season> findSeasonsByDay() throws ParseException {
         DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
         Calendar dateStart = Calendar.getInstance();
         Calendar dateEnd = Calendar.getInstance();
 
-        try {
-            dateStart.setTime(df.parse(startDate));
-            dateEnd.setTime(df.parse(endDate));
-        } catch (ParseException ex) {
-            Logger.getLogger(DateInterspace.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        dateStart.setTime(df.parse(startDate));
+        dateEnd.setTime(df.parse(endDate));
 
-        double diffDay = (dateEnd.getTimeInMillis() - dateStart.getTimeInMillis()) / (24 * 60 * 60 * 1000);
-        double d = diffDay / 7;
-        List<Weeks> weekses = new ArrayList<Weeks>();
+        List<Season> seasons = new ArrayList<Season>();
 
         int diffWeek = dateEnd.get(Calendar.WEEK_OF_YEAR) - dateStart.get(Calendar.WEEK_OF_YEAR) + 1;
 
         for (int i = 0; i < diffWeek; i++) {
-            Weeks weeks = new Weeks();
-            List<Calendar> inWeek = new ArrayList<Calendar>();
-            List<Calendar> endWeek = new ArrayList<Calendar>();
-            int dayOfWeek = dateStart.get(Calendar.DAY_OF_WEEK);
-            for (int j = dayOfWeek; (j == 1 ? j = 8 : j) <= 8; j++) {
+            Season season = new Season();
+            List<Calendar> wantDay = new ArrayList<Calendar>();
+            List<Calendar> days = new ArrayList<Calendar>();
+
+            int dayOfWeek = dateStart.get(Calendar.DAY_OF_WEEK) - 1;
+
+            for (int j = dayOfWeek; j < 8; j++) {
                 Calendar calendar;
-                if (days.length > 0) {
+                if (this.startDay != null && this.endDay != null) {
                     if (findDay(j)) {
-                        if (j == 1 || j == 7 || j == 8) {
-                            calendar = Calendar.getInstance();
-                            calendar.setTime(dateStart.getTime());
-                            endWeek.add(calendar);
-                        } else {
-                            calendar = Calendar.getInstance();
-                            calendar.setTime(dateStart.getTime());
-                            inWeek.add(calendar);
-                        }
-                    }
-                } else {
-                    if (j == 1 || j == 7 || j == 8) {
                         calendar = Calendar.getInstance();
                         calendar.setTime(dateStart.getTime());
-                        endWeek.add(calendar);
+                        wantDay.add(calendar);
                     } else {
                         calendar = Calendar.getInstance();
                         calendar.setTime(dateStart.getTime());
-                        inWeek.add(calendar);
+                        days.add(calendar);
                     }
+                } else {
+
+                    calendar = Calendar.getInstance();
+                    calendar.setTime(dateStart.getTime());
+                    days.add(calendar);
                 }
 
                 if (dateEnd.get(Calendar.DAY_OF_YEAR) == dateStart.get(Calendar.DAY_OF_YEAR)) {
@@ -136,13 +114,22 @@ public class DateInterspace {
                 }
                 dateStart.add(Calendar.DAY_OF_MONTH, 1);
             }
-            weeks.setInWeek(inWeek);
-            weeks.setEndWeek(endWeek);
-            weekses.add(weeks);
-
+            season.setWantDay(wantDay);
+            season.setDays(days);
+            seasons.add(season);
         }
+        return seasons;
+    }
 
-        return weekses;
+    /**
+     * Between dates brings the days you want.
+     *
+     * @return List Weeks
+     */
+    public List<Season> findSeasonsByDay(Integer startDay, Integer endDay) throws ParseException {
+        this.startDay = startDay;
+        this.endDay = endDay;
+        return findSeasonsByDay();
     }
 
     /**
@@ -151,7 +138,7 @@ public class DateInterspace {
      * @return
      */
     private boolean findDay(int day) {
-        if (this.days[0] <= day && this.days[this.days.length - 1] >= day) {
+        if (this.startDay <= day && this.endDay >= day) {
             return true;
         }
         return false;
