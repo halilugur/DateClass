@@ -16,7 +16,7 @@ public class TestTwoDate {
 
         // "08.09.2017","08.10.2017" arasındaki günleri hafta sonu ve hafta içi olarak ayırır
         // bunu Weeks sınıfı olarak geri döndürür.
-        DateInterspace di = new DateInterspace("11.09.2017", "30.09.2017");
+        DateInterspace di = new DateInterspace("15.10.2017", "16.10.2017");
         try {
 
             for (Season findDayOfSeason : di.findSeasonsByDay()) {

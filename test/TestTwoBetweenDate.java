@@ -28,7 +28,7 @@ public class TestTwoBetweenDate {
         DateInterspace di = new DateInterspace("11.09.2017", "30.09.2017");
         try {
 
-            for (Season findDayOfSeason : di.findSeasonsByDay(6, 7)) {
+            for (Season findDayOfSeason : di.findSeasonsByDay(4, 4)) {
 
                 System.out.println("------------Days------------");
                 for (Calendar extraDay : findDayOfSeason.getDays()) {

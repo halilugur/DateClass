@@ -134,11 +134,11 @@ public class DateInterspace {
 
     /**
      *
-     * @param day Day_Of_Week find day to days
+     * @param day Day_Of_Week find day in to days
      * @return
      */
     private boolean findDay(int day) {
-        if (this.startDay <= day && this.endDay >= day) {
+        if (this.startDay == day || this.endDay == day) {
             return true;
         }
         return false;
